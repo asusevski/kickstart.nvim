@@ -152,7 +152,13 @@ vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 1
+
+-- Enable folding
+vim.opt.foldmethod = 'indent'
+vim.opt.foldnestmax = 10
+vim.opt.foldenable = true
+vim.opt.foldlevel = 32
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -166,6 +172,56 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
+-- Remap window navigation
+vim.api.nvim_set_keymap('n', '<A-h>', '<C-W>h', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<A-j>', '<C-W>j', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<A-k>', '<C-W>k', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<A-l>', '<C-W>l', { noremap = true, silent = true })
+
+-- Setup terminal split
+vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<A-h>', '<C-\\><C-n><C-W>h', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<A-j>', '<C-\\><C-n><C-W>j', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<A-k>', '<C-\\><C-n><C-W>k', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<A-l>', '<C-\\><C-n><C-W>l', { noremap = true, silent = true })
+
+-- Enable autoread
+vim.o.autoread = true
+vim.cmd [[autocmd FocusGained,BufEnter * checktime]]
+
+-- Autocmds for terminal
+vim.cmd [[
+  autocmd TermOpen * setlocal nonumber norelativenumber
+  autocmd BufWinEnter,WinEnter term://* startinsert
+  autocmd TermClose * execute 'bdelete! ' . expand('<abuf>')
+]]
+
+-- Resize window mappings
+vim.api.nvim_set_keymap('n', '<C-j>', ':exe "vertical res +5"<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-h>', ':exe "vertical res -5"<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-k>', ':exe "res +5"<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-j>', ':exe "res -5"<CR>', { noremap = true, silent = true })
+
+-- Remap Q to prevent accidental macro recording
+vim.api.nvim_set_keymap('n', 'Q', '<Nop>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'qq', 'q', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'q', '<Nop>', { noremap = true, silent = true })
+
+-- Remap leader+n for new tab
+vim.api.nvim_set_keymap('n', '<leader>n', ':tabnew<CR>', { noremap = true, silent = true })
+
+-- Remap H and L for tab navigation
+vim.api.nvim_set_keymap('n', 'H', '<Nop>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'L', '<Nop>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'H', ':tabprevious<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'L', ':tabnext<CR>', { noremap = true, silent = true })
+
+-- Terminal mappings
+vim.api.nvim_set_keymap('n', '<leader>t', ':split +term<CR>i', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>T', ':vert term<CR>tmux<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>=', '<C-w>=', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>w', '<C-w>', { noremap = true, silent = true })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -227,6 +283,52 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  -- 'github/copilot.vim',
+  {
+    'easymotion/vim-easymotion',
+    config = function()
+      -- EasyMotion key mappings
+      vim.api.nvim_set_keymap('n', '<leader>j', '<Plug>(easymotion-sol-j)', {})
+      vim.api.nvim_set_keymap('n', '<leader>k', '<Plug>(easymotion-sol-k)', {})
+      vim.api.nvim_set_keymap('n', '<leader>l', '<Plug>(easymotion-jumptoanywhere)', {})
+      vim.api.nvim_set_keymap('n', '<leader>h', '<Plug>(easymotion-jumptoanywhere)', {})
+      vim.api.nvim_set_keymap('v', '<leader>j', '<Plug>(easymotion-sol-j)', {})
+      vim.api.nvim_set_keymap('v', '<leader>k', '<Plug>(easymotion-sol-k)', {})
+      vim.api.nvim_set_keymap('v', '<leader>l', '<Plug>(easymotion-jumptoanywhere)', {})
+      vim.api.nvim_set_keymap('v', '<leader>h', '<Plug>(easymotion-jumptoanywhere)', {})
+    end,
+  },
+  {
+    'tpope/vim-vinegar',
+    config = function()
+      -- Vinegar key mapping
+      vim.api.nvim_set_keymap('n', '<leader>d', '<Plug>VinegarUp', {})
+
+      -- Netrw settings and key mappings
+      vim.cmd [[
+        augroup NetrwSetup
+          autocmd!
+          autocmd FileType netrw nmap <buffer> <Leader>s <C-^>
+          autocmd FileType netrw nmap <buffer> <Leader>f gn
+          autocmd FileType netrw nmap <buffer> f %
+          autocmd FileType netrw setlocal bufhidden=delete
+        augroup END
+
+        let g:netrw_localrmdir='rm -rf'
+        let g:netrw_sort_sequence = '[\/]$,\<core\%(\.\d\+\)\=,\.[a-np-z]$,\.cpp$,*,\.o$,\.obj$,\.info$,\.swp$,\.bak$,\~$'
+        let g:netrw_liststyle = 3
+      ]]
+
+      -- Adjust suffixes setting
+      vim.opt_local.suffixes:remove '.h'
+
+      -- QuickFix command settings
+      vim.cmd [[autocmd QuickFixCmdPost * lw]]
+
+      -- Additional silent command
+      vim.cmd [[silent! dig -. 8230 "U+2026=… HORIZONTAL ELLIPSIS]]
+    end,
+  },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -401,6 +503,9 @@ require('lazy').setup({
         }
       end, { desc = '[S]earch [/] in Open Files' })
 
+      -- Shortcut for vscode style ctrl+p
+      vim.keymap.set('n', '<C-p>', builtin.find_files)
+
       -- Shortcut for searching your Neovim configuration files
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
@@ -565,9 +670,9 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -729,13 +834,17 @@ require('lazy').setup({
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          -- ['<C-y>'] = cmp.mapping.confirm { select = true },
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          --['<Tab>'] = cmp.mapping.select_next_item(),
-          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          -- ['<CR>'] = cmp.mapping.confirm { select = true },
+          -- ['<Tab>'] = cmp.mapping.select_next_item(),
+          -- ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+
+          -- My custom bindings
+          ['<Tab>'] = cmp.mapping.confirm { select = true },
+          ['<CR>'] = cmp.mapping.confirm { select = true },
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -773,21 +882,28 @@ require('lazy').setup({
     end,
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+  -- { -- You can easily change to a different colorscheme.
+  --   -- Change the name of the colorscheme plugin below, and then
+  --   -- change the command in the config to whatever the name of that colorscheme is.
+  --   --
+  --   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --   'folke/tokyonight.nvim',
+  --   priority = 1000, -- Make sure to load this before all the other start plugins.
+  --   init = function()
+  --     -- Load the colorscheme here.
+  --     -- Like many other themes, this one has different styles, and you could load
+  --     -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --     vim.cmd.colorscheme 'tokyonight-night'
+  --
+  --     -- You can configure highlights by doing something like:
+  --     vim.cmd.hi 'Comment gui=none'
+  --   end,
+  -- },
 
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+  {
+    'flazz/vim-colorschemes',
+    config = function()
+      vim.cmd.colorscheme 'materialbox'
     end,
   },
 
@@ -824,7 +940,7 @@ require('lazy').setup({
       -- cursor location to LINE:COLUMN
       ---@diagnostic disable-next-line: duplicate-set-field
       statusline.section_location = function()
-        return '%2l:%-2v'
+        return '%2l:%t-2v'
       end
 
       -- ... and there is more!
