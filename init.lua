@@ -283,7 +283,14 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
-  -- 'github/copilot.vim',
+  {
+    'github/copilot.vim',
+    config = function()
+      vim.api.nvim_set_keymap('n', '<S-Tab>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
+      vim.api.nvim_set_keymap('i', '<S-Tab>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
+      -- ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+    end,
+  },
   {
     'easymotion/vim-easymotion',
     config = function()
