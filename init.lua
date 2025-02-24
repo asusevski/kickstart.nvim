@@ -1052,5 +1052,77 @@ require('lazy').setup({
   },
 })
 
+-- aesthetics
+vim.opt.background = 'dark'
+vim.opt.termguicolors = true
+vim.api.nvim_command([[
+  highlight Normal guibg=NONE ctermbg=NONE
+  highlight NonText guibg=NONE ctermbg=NONE
+  highlight LineNr guibg=NONE ctermbg=NONE
+  highlight Folded guibg=NONE ctermbg=NONE
+  highlight EndOfBuffer guibg=NONE ctermbg=NONE
+]])
+vim.g.materialbox_contrast = 'hard'
+
+-- tmp: tabs stuff
+-- Always show the tabline (tab bar)
+vim.opt.showtabline = 2  -- Always show tab line (2 = always)
+
+vim.cmd([[
+  function! BrowserTabLine()
+    let s = ''
+    let cwd = getcwd() . '/'
+    
+    for i in range(1, tabpagenr('$'))
+      " Select the highlighting
+      if i == tabpagenr()
+        let s .= '%#TabLineSel#'
+      else
+        let s .= '%#TabLine#'
+      endif
+
+      " Set the tab page number (for mouse clicks)
+      let s .= '%' . i . 'T'
+      
+      " Get buflist of the tab page
+      let buflist = tabpagebuflist(i)
+      let winnr = tabpagewinnr(i)
+      let bufnr = buflist[winnr - 1]
+      
+      " Get the full path and filename
+      let fullpath = expand('#' . bufnr . ':p')
+      let filename = expand('#' . bufnr . ':t')
+      
+      " Create relative path from project directory
+      let relpath = filename
+      if fullpath =~ '^' . cwd
+        let relpath = strpart(fullpath, strlen(cwd))
+      elseif fullpath != ''
+        let relpath = filename
+      endif
+      
+      " Add the tab number and relative path
+      let s .= ' ' . i . ': ' . (relpath == '' ? '[No Name]' : relpath) . ' '
+    endfor
+
+    " Fill the rest of the tabline
+    let s .= '%#TabLineFill#%T'
+    
+    return s
+  endfunction
+
+  set tabline=%!BrowserTabLine()
+]])
+
+-- Make tab text white and visible
+vim.cmd([[
+  highlight TabLine cterm=bold gui=bold ctermfg=white guifg=white ctermbg=236 guibg=#303030
+  highlight TabLineFill cterm=none gui=none ctermfg=white guifg=white ctermbg=236 guibg=#303030
+  highlight TabLineSel cterm=bold gui=bold ctermfg=white guifg=white ctermbg=25 guibg=#0066cc
+]])
+
+-- tmp end
+
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
