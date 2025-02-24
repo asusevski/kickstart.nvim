@@ -201,7 +201,7 @@ vim.cmd [[
 vim.api.nvim_set_keymap('n', '<C-j>', ':exe "vertical res +5"<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-h>', ':exe "vertical res -5"<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-k>', ':exe "res +5"<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-j>', ':exe "res -5"<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-l>', ':exe "res -5"<CR>', { noremap = true, silent = true })
 
 -- Remap Q to prevent accidental macro recording
 vim.api.nvim_set_keymap('n', 'Q', '<Nop>', { noremap = true, silent = true })
@@ -353,16 +353,9 @@ require('lazy').setup({
   --
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
+    'lewis6991/gitsigns.nvim', config = function()
+	require('gitsigns').setup()
+	end
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -533,7 +526,7 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
-      { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
+      { 'williamboman/mason.nvim', opts = {}},
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
@@ -716,7 +709,7 @@ require('lazy').setup({
       --    :Mason
       --
       --  You can press `g?` for help in this menu.
-      require('mason').setup()
+      -- require('mason').setup()
 
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
@@ -727,6 +720,7 @@ require('lazy').setup({
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
+	ensure_installed = {},
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -738,7 +732,7 @@ require('lazy').setup({
           end,
         },
       }
-    end,
+     end,
   },
 
   { -- Autoformat
@@ -1016,7 +1010,8 @@ require('lazy').setup({
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
   -- { import = 'custom.plugins' },
-}, {
+},
+{
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
